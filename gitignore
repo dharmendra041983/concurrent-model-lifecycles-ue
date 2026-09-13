@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets / local environment
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# Local logs / temporary files
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Local experiment caches that can be regenerated
+cache/
+.cache/
+
+# Build / packaging artifacts
+build/
+dist/
+*.egg-info/
+
+# NOTE:
+# Model checkpoints and machine-readable result files are intentionally
+# NOT ignored here. If they are needed to reproduce the paper, keep them
+# versioned in GitHub or archive them with the corresponding Zenodo release.
