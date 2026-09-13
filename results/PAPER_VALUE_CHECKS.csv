@@ -1,0 +1,14 @@
+artifact,metric,FR2,FR1,notes
+Table II,nominal triple ratio,2.35x,25.3x,nominal evaluation disjoint from calibration
+Table II,blocked triple ratio,4.60x,2.06x,
+Table III,CP relative interaction,-26.2%,-7.7%,pre-overhead throughput
+Table IV,P->C induced fallback,+0.250,+0.039,entries per realization
+Table V,P monitor-fired delta throughput,+0.222,+0.413,bit/s/Hz
+Table V,C monitor-fired delta throughput,-0.269,-0.230,bit/s/Hz
+Table VII,learned NMSE nominal,-27.64 dB,,FR2 rate-robustness sweep
+Table VII,learned NMSE blocked,-27.42 dB,,FR2 rate-robustness sweep
+Table VII,first tested fixed quantizer matching learned,240 bits,,3.75x 64-bit learned report
+Table VIII,chain minus blind,-0.072,-0.174,blockage regime
+Table IX alpha=0.25,chain minus blind,+0.1297,-0.0025,pairing mismatch
+Table IX alpha=0.50,chain minus blind,+0.1656,+0.0981,pairing mismatch
+Table IX alpha=0.75,chain minus blind,+0.1000,+0.0054,pairing mismatch

@@ -1,0 +1,63 @@
+paper:
+  title: "Concurrent Model Lifecycles at the UE: Interaction Between Beam Management, CSI Prediction, and CSI Compression"
+  author: "Dharmendra Kumar"
+  target_venue: "IEEE Transactions on Wireless Communications"
+
+artifacts:
+  - paper_item: "Table I - held-out model validation"
+    source_script: "src/train.py"
+    status: "required"
+    n: 128
+    notes: "Manuscript provenance comment identifies train.py validation output."
+
+  - paper_item: "Table II - correlated monitor firing"
+    source_script: "src/induced.py"
+    status: "required"
+    calibration_n: 64
+    nominal_evaluation_n: 512
+    blocked_n: 256
+    notes: "Final paper reports nominal statistics on a disjoint 512-realization set."
+
+  - paper_item: "Table III and Fig. 2 - fallback interaction"
+    source_script: "src/experiment.py"
+    status: "required"
+    n: 512
+    metric: "pre-overhead throughput interaction"
+
+  - paper_item: "Table IV - induced fallback"
+    source_script: "src/induced.py"
+    status: "required"
+    n: 256
+    q_exit: 25
+
+  - paper_item: "Table V and Fig. 3 - conditional fallback value"
+    source_script: "src/conditional.py"
+    status: "required"
+    n: 256
+
+  - paper_item: "Table VI - compression monitor / encoder mechanism diagnostic"
+    source_script: null
+    status: "required-script-name-to-confirm"
+    n: 64
+    notes: "Do not invent a filename; copy the exact script used for the final diagnostic."
+
+  - paper_item: "Table VII - encoder rate-robustness sweep"
+    source_script: "src/check_encoder_ood.py"
+    status: "required"
+    n: 64
+    notes: "Filename is supported by the author's recorded command; keep paper wording as rate-robustness, not formal OOD."
+
+  - paper_item: "Table VIII - dependency-aware vs blind-delay arbitration"
+    source_script: "src/arbiter.py"
+    status: "included-exact-author-file"
+    sha256: "dd5b1a23d48b413e0ff11c6d66271fa6deec53979d5a0658a2f435fb40249708"
+    n: 256
+    W_a: 10
+    notes: "Exact author-supplied arbitration script; preserved without scientific edits."
+
+  - paper_item: "Table IX - pairing-mismatch severity sweep"
+    source_script: null
+    status: "required-script-name-to-confirm"
+    fr2_n: 512
+    fr1_n: 128
+    notes: "Copy the exact final mismatch-sweep script and any saved decoder/checkpoint files required to run it."
