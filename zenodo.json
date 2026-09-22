@@ -1,0 +1,22 @@
+{
+  "title": "Concurrent Model Lifecycles at the UE: Interaction Between Beam Management, CSI Prediction, and CSI Compression",
+  "description": "Code, configurations, seeds, and reproducibility artifacts supporting the manuscript \"Concurrent Model Lifecycles at the UE: Interaction Between Beam Management, CSI Prediction, and CSI Compression.\"",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Kumar, Dharmendra"
+    }
+  ],
+  "keywords": [
+    "AI/ML lifecycle management",
+    "5G-Advanced",
+    "6G",
+    "NG-RAN",
+    "beam management",
+    "CSI prediction",
+    "CSI compression",
+    "model fallback",
+    "reproducibility"
+  ],
+  "version": "1.0.1"
+}

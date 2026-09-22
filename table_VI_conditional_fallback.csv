@@ -1,0 +1,5 @@
+band,pipeline,all_slots,monitor_fired,post_blockage,unit
+FR2,P,-0.059,0.222,0.249,bit/s/Hz
+FR2,C,-0.072,-0.269,-0.258,bit/s/Hz
+FR1,P,0.101,0.413,0.436,bit/s/Hz
+FR1,C,-0.679,-0.23,-0.149,bit/s/Hz

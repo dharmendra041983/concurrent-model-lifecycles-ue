@@ -1,17 +1,17 @@
 cff-version: 1.2.0
-message: "If you use this software or artifact, please cite the archived release and the associated paper."
-title: "Concurrent Model Lifecycles at the UE: Reproducibility Artifact"
+message: "If you use this software or artifact, please cite the archived release and the associated manuscript."
+title: "Concurrent Model Lifecycles at the UE: Interaction Between Beam Management, CSI Prediction, and CSI Compression"
 type: software
 authors:
   - family-names: Kumar
     given-names: Dharmendra
-version: 1.0.0
-date-released: 2026-09-12
-repository-code: "https://github.com/<YOUR_GITHUB_USERNAME>/concurrent-model-lifecycles-ue"
+version: 1.0.1
+repository-code: "https://github.com/dharmendra041983/concurrent-model-lifecycles-ue"
 keywords:
   - AI/ML lifecycle management
-  - 5G NR
+  - 5G-Advanced
   - 6G
+  - NG-RAN
   - beam management
   - CSI prediction
   - CSI compression

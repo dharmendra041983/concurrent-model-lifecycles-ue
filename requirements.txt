@@ -1,0 +1,5 @@
+# Core Python dependencies. CUDA-specific PyTorch installation may require
+# the wheel/index appropriate to the target machine.
+numpy
+torch==2.14.0
+sionna-no-rt==2.0.1

@@ -1,0 +1,5 @@
+band,condition,rho_BP,rho_BC,rho_PC,triple_ratio
+FR2,nominal,0.071,0.228,0.087,2.35
+FR2,blocked,0.21,0.236,0.023,4.6
+FR1,nominal,0.193,0.417,0.17,25.3
+FR1,blocked,0.299,0.172,-0.004,2.06

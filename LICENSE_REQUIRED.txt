@@ -1,3 +1,5 @@
-A software license has intentionally NOT been selected automatically.
-Choose the license you want to grant before making the repository public,
-then replace this file with the corresponding LICENSE file.
+No software license has been selected by the author yet.
+
+Before the next public release, replace this file with the actual LICENSE file
+for the license you intend to grant. Until then, no additional permission is
+granted beyond applicable law.

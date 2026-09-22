@@ -1,0 +1,5 @@
+condition,P_state,sC_p95_x1e3,fire_fraction,learned_dB,margin_dB
+nominal,ACTIVE,4.6,0.049,-27.6,17.0
+nominal,FALLBACK,6.0,0.102,-26.65,16.7
+blocked,ACTIVE,5.1,0.067,-27.54,17.3
+blocked,FALLBACK,6.4,0.121,-26.55,16.9

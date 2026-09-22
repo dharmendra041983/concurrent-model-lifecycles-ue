@@ -1,0 +1,7 @@
+scheme,bits,nominal_dB,blocked_dB,change_dB
+learned,64,-27.64,-27.42,0.22
+wideband_fallback,12,-10.55,-10.24,0.32
+uni2,96,-9.82,-9.68,0.14
+uni3,144,-17.13,-17.06,0.07
+uni4,192,-23.72,-23.64,0.08
+uni5,240,-29.99,-29.89,0.1

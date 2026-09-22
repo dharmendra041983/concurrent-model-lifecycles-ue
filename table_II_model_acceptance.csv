@@ -1,0 +1,12 @@
+metric,FR2,FR1,unit
+beam_gain_loss,1.907,0.602,dB
+exhaustive_sweep_fallback,1.792,0.435,dB
+excess_over_fallback,0.116,0.167,dB
+period_optimal_ceiling,0.762,0.174,dB
+beam_top1,0.326,0.604,fraction
+prediction_NMSE,-6.17,-12.08,dB
+hold_last_NMSE,-1.12,-5.69,dB
+gain_over_hold_last,5.05,6.39,dB
+compression_NMSE,-26.91,-28.43,dB
+learned_report_bits,64,64,bits
+fallback_report_bits,12,12,bits

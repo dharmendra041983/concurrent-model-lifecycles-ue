@@ -1,0 +1,5 @@
+band,H,mode,delta_tput,avoided,denied,chain_minus_blind
+FR2,10,chain,0.02,0.117,0.125,-0.072
+FR2,10,blind,0.092,0.27,0.453,
+FR1,40,chain,0.036,0.016,0.043,-0.174
+FR1,40,blind,0.21,0.039,0.945,

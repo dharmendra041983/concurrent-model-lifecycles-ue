@@ -1,0 +1,48 @@
+{
+  "paper_title": "Concurrent Model Lifecycles at the UE: Interaction Between Beam Management, CSI Prediction, and CSI Compression",
+  "base_seed": 20260907,
+  "episode_slots": 200,
+  "num_realizations_default": 512,
+  "training": {
+    "train_realizations": 1024,
+    "validation_realizations": 128,
+    "epochs": 200,
+    "batch_size": 64,
+    "learning_rate": 0.001
+  },
+  "predictor": {
+    "window_W": 8,
+    "horizon_k": 2
+  },
+  "compressor": {
+    "latent_dim": 16,
+    "bits_per_latent": 4,
+    "learned_report_bits": 64,
+    "fallback_report_bits": 12
+  },
+  "lifecycle": {
+    "q_enter": 3,
+    "q_exit": 25,
+    "nominal_false_alarm_target": 0.05
+  },
+  "FR2": {
+    "carrier_GHz": 28,
+    "SCS_kHz": 120,
+    "CDL": "B",
+    "delay_spread_ns": 30,
+    "BS_array": "4x8 single-pol",
+    "UE_array": "1x2",
+    "codebook_beams": 128,
+    "SetB_fraction": 0.25
+  },
+  "FR1": {
+    "carrier_GHz": 3.5,
+    "SCS_kHz": 30,
+    "CDL": "C",
+    "delay_spread_ns": 300,
+    "BS_array": "2x8 single-pol",
+    "UE_array": "1x2",
+    "codebook_beams": 64,
+    "SetB_fraction": 0.25
+  }
+}
