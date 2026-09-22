@@ -1,0 +1,358 @@
+%==============================================================
+%  Concurrent Model Lifecycles at the UE -- RESULTS
+%
+%  Revised abstract, contribution list, and populated tables.
+%  Merge into the scaffold, replacing the corresponding sections.
+%
+%  Every number below is measured. Provenance:
+%    Table I    induced.py   (nominal n=64 calib, blocked n=256)
+%    Table II   experiment.py (n=512)
+%    Table III  induced.py   (n=256, q_exit=25)
+%    Table IV   conditional.py (n=256)
+%    Table V    arbiter.py   (n=256, W_a=10)
+%
+%  WHAT CHANGED FROM THE SCAFFOLD, and why:
+%   - The three-pipeline conflict claim did not survive. The interaction
+%     that holds up is P->C. B contributes one clean secondary finding.
+%   - The arbiter FAILED its own control. A blind-delay baseline beats it
+%     in both bands. This is reported as a result, not omitted.
+%   - The conditional check (Table IV) is what licenses that negative
+%     result and is new relative to the scaffold. It belongs BEFORE the
+%     arbitration section.
+%==============================================================
+
+\begin{abstract}
+Release~19 makes AI/ML lifecycle management normative on the NR air
+interface and organizes it per functionality: each use case receives its
+own monitoring signal, decision rule, and fallback state. A user equipment,
+however, runs several functionalities concurrently, driven by a common
+channel realization. We construct a link-level system in which beam
+management, CSI prediction, and CSI compression each carry a trained model
+and a Release~19 lifecycle state machine, and we measure what
+per-functionality organization does not express. Three results follow.
+First, monitors calibrated independently to a common false-alarm rate fire
+jointly far more often than independence predicts, and the excess grows
+under degradation. Second, the cost of concurrent fallback is not additive:
+along the prediction-to-compression dependency the joint cost is
+\SI{26}{\percent} below the sum of the individual costs, and a prediction
+fallback induces compression fallbacks that would not otherwise have fired.
+Third, and contrary to our expectation, cross-functionality arbitration does
+not repair this. A blind-delay baseline outperforms a dependency-aware
+arbiter in both deployments, because the induced fallback action is harmful
+whether or not it was induced. Measured conditional on its own monitor
+firing, the compression fallback loses throughput in every degradation
+regime while the prediction fallback gains. We conclude that
+per-functionality lifecycle management is limited by the worst-designed
+fallback in the set, and that coordination cannot substitute for fixing it.
+\end{abstract}
+
+%--------------------------------------------------------------
+\subsection*{Contributions}
+%--------------------------------------------------------------
+
+\begin{itemize}
+  \item A coupled three-pipeline link-level model in which beam management,
+  CSI prediction, and CSI compression are driven by a single channel
+  realization, each with a trained model meeting a stated acceptance
+  criterion and a lifecycle state machine implementing the Release~19
+  monitoring, switching, and fallback primitives
+  (Sec.~\ref{sec:model}, Sec.~\ref{sec:lcm}).
+
+  \item A measurement of \emph{correlated monitor firing} showing that
+  per-functionality thresholds calibrated in isolation are jointly
+  miscalibrated, that the effect is weak under nominal conditions and
+  strengthens under degradation, and that its magnitude depends on how much
+  of each monitor's variance is contributed by the shared channel rather
+  than by its own pipeline (Sec.~\ref{sec:correlation}).
+
+  \item An \emph{interaction} result separating genuine lifecycle coupling
+  from the multiplicative composition of measurement overhead---a
+  distinction that accounts for the entire apparent interaction of two of
+  four subsets---and establishing sub-additive coupling along the
+  prediction-to-compression dependency, together with induced fallback
+  along the same path (Sec.~\ref{sec:interaction}).
+
+  \item A \emph{negative result on arbitration}. We construct a minimal
+  UE-level arbiter and a blind-delay control, and find the control
+  superior in both deployments. Measured conditional on its own monitor
+  firing, the compression fallback is worse than remaining active in every
+  degradation regime, while the prediction fallback is better. The limiting
+  factor is fallback design within a functionality, not coordination
+  across functionalities (Sec.~\ref{sec:conditional},
+  Sec.~\ref{sec:arbiter}).
+\end{itemize}
+
+The claim is bounded. We do not propose a replacement lifecycle framework,
+we do not assert that Release~19 is defective, and the negative arbitration
+result is specific to the fallback designs and operating points studied
+here.
+
+%==============================================================
+\section{Results}
+%==============================================================
+
+Unless stated otherwise, FR2 is the primary deployment
+(\SI{28}{\giga\hertz}, \SI{120}{\kilo\hertz} SCS, CDL-B, \SI{30}{\nano\second}
+delay spread, $4\times8$ array, 128-beam oversampled codebook, Set~B of 32)
+and FR1 is a second operating point (\SI{3.5}{\giga\hertz},
+\SI{30}{\kilo\hertz} SCS, CDL-C, $2\times8$ array, 64 beams, Set~B of 16).
+All statistics are paired at the realization level with matched seeds;
+intervals are \SI{95}{\percent} percentile bootstrap.
+
+\subsection{Model acceptance}
+
+All three pipelines meet their acceptance criteria, fixed before the
+interaction experiment and unchanged thereafter. Beam health is judged
+against the exhaustive-sweep fallback it replaces rather than against a
+hindsight optimum: the period-optimal beam is not attainable from a
+single-slot measurement snapshot, and the non-AI path does not attain it
+either.
+
+\begin{table}[t]
+\caption{Accepted model metrics (validation, 128 realizations).}
+\label{tab:acceptance}
+\centering
+\begin{tabular}{lcc}
+\toprule
+ & FR2 & FR1 \\
+\midrule
+Beam gain loss [dB]              & 1.907  & 0.602 \\
+\quad exhaustive-sweep fallback  & 1.792  & 0.435 \\
+\quad excess over fallback       & 0.116  & 0.167 \\
+\quad period-optimal ceiling     & 0.762  & 0.174 \\
+Beam top-1                       & 0.326  & 0.604 \\
+Prediction NMSE [dB]             & $-6.17$ & $-12.08$ \\
+\quad hold-last NMSE [dB]        & $-1.12$ & $-5.69$ \\
+\quad gain over hold-last [dB]   & 5.05   & 6.39 \\
+Compression NMSE [dB]            & $-26.91$ & $-28.43$ \\
+CSI report [bits]                & \multicolumn{2}{c}{64 learned / 12 fallback} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Correlated monitor firing}
+\label{sec:correlation}
+
+Each detector is calibrated in isolation to a \SI{5}{\percent} nominal
+false-alarm rate, so independence predicts a joint triple rate of
+$5\times10^{-2\cdot3}=1.25\times10^{-4}$.
+
+\begin{table}[t]
+\caption{Monitor firing. Ratio is measured joint rate over the product of
+marginals. Nominal calibration, 64 realizations; blocked, 256.}
+\label{tab:correlation}
+\centering
+\begin{tabular}{llcccc}
+\toprule
+ & & $\rho_{BP}$ & $\rho_{BC}$ & $\rho_{PC}$ & triple ratio \\
+\midrule
+\multirow{2}{*}{FR2} & nominal & $+0.037$ & $+0.207$ & $+0.081$ & $2.63\times$ \\
+                     & blocked & $+0.210$ & $+0.236$ & $+0.023$ & $4.60\times$ \\
+\multirow{2}{*}{FR1} & nominal & $+0.224$ & $+0.386$ & $+0.205$ & $20.4\times$ \\
+                     & blocked & $+0.299$ & $+0.172$ & $-0.004$ & $2.06\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two observations. Coincident firing exceeds the independence prediction in
+every case, so per-functionality calibration is jointly optimistic. But the
+magnitude is deployment-dependent rather than universal: at FR2 the
+pipelines are individually noisier, which decorrelates their monitors, and
+the nominal excess is modest. The FR1 blocked row must be read with care:
+marginal firing there reaches \SI{25}{\percent} against a
+\SI{5}{\percent} calibration target, so the detectors are saturated and
+coincidence ceases to be informative---the same blockage parameters are far
+more severe relative to FR1's operating point.
+
+Note that the strongest \emph{interaction} pair, $PC$, is the weakest
+\emph{correlation} pair. These are different mechanisms: $PC$ couples
+through the serial dependency, not through shared observation.
+
+\subsection{Fallback interaction}
+\label{sec:interaction}
+
+Overhead composes multiplicatively with every other cost source, so any
+subset that changes measurement overhead yields a nonzero $\Delta$ by
+arithmetic alone. We therefore report $\Delta$ on pre-overhead throughput.
+
+\begin{table}[t]
+\caption{Interaction $\Delta_{\text{raw}}(\mathcal{S})$, pre-overhead, 512
+realizations. rel is $\Delta$ over the singleton sum. Singleton costs
+$C_{\text{raw}}$: FR2 $B{=}-0.023$, $P{=}0.133$, $C{=}0.071$;
+FR1 $B{=}-0.017$, $P{=}0.092$, $C{=}1.443$.}
+\label{tab:interaction}
+\centering
+\begin{tabular}{llccc}
+\toprule
+ & $\mathcal{S}$ & $\Delta_{\text{raw}}$ & rel & 95\,\% CI \\
+\midrule
+\multirow{4}{*}{FR2}
+ & $\{B,P\}$   & $+0.0090$ & $+8.2\%$  & $[+0.001,+0.018]$ \\
+ & $\{B,C\}$   & $+0.0252$ & \dag      & $[+0.018,+0.033]$ \\
+ & $\{C,P\}$   & $-0.0534$ & $-26.2\%$ & $[-0.059,-0.048]$ \\
+ & $\{B,C,P\}$ & $-0.0189$ & \dag      & $[-0.030,-0.008]$ \\
+\midrule
+\multirow{4}{*}{FR1}
+ & $\{B,P\}$   & $-0.0035$ & $-4.7\%$  & $[-0.010,+0.003]$ \\
+ & $\{B,C\}$   & $-0.1964$ & \dag      & $[-0.218,-0.175]$ \\
+ & $\{C,P\}$   & $-0.1188$ & $-7.7\%$  & $[-0.131,-0.107]$ \\
+ & $\{B,C,P\}$ & $-0.3235$ & \dag      & $[-0.350,-0.298]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\dag~Relative interaction is not reported for subsets containing $B$. The
+beam fallback has \emph{negative} raw cost---exhaustive sweep is more
+accurate than the model, so stripped of overhead it improves
+throughput---and the singleton sum is then a near-cancellation of
+opposite-signed terms, making the ratio numerically unstable.
+
+That negative cost is itself worth stating: the beam-management fallback is
+not an accuracy degradation but a resource cost. Its entire delivered cost
+(FR2: 1.191 of 4.625 baseline) is the measurement overhead of sweeping 128
+beams rather than 32. Per-functionality accounting, which implicitly treats
+fallback as degradation, does not express this.
+
+The result that survives in both deployments is $\{C,P\}$: sub-additive,
+\SI{26}{\percent} of the predicted sum at FR2 and \SI{7.7}{\percent} at
+FR1. The mechanism is saturation along the dependency chain---once
+prediction has fallen back, end-to-end CSI NMSE is already 0.98, and
+degrading the report further costs little.
+
+\subsection{Induced fallback}
+
+Matched pairs differ only in whether the source pipeline may fall back.
+
+\begin{table}[t]
+\caption{Induced fallback entries per realization, 256 realizations,
+$q_{\text{exit}}{=}25$. Positive means the source \emph{induces} fallbacks
+in the target; negative means it \emph{suppresses} them.}
+\label{tab:induced}
+\centering
+\begin{tabular}{llccc}
+\toprule
+ & pair & induced & 95\,\% CI & $p$ \\
+\midrule
+\multirow{3}{*}{FR2}
+ & $P\!\to\!C$ & $+0.250$ & $[+0.191,+0.309]$ & $0.0001$ \\
+ & $B\!\to\!P$ & $-0.027$ & $[-0.090,+0.031]$ & $0.373$ \\
+ & $B\!\to\!C$ & $+0.004$ & $[-0.043,+0.051]$ & $0.870$ \\
+\midrule
+\multirow{3}{*}{FR1}
+ & $P\!\to\!C$ & $+0.039$ & $[+0.016,+0.062]$ & $0.0018$ \\
+ & $B\!\to\!P$ & $-0.418$ & $[-0.531,-0.301]$ & $0.0001$ \\
+ & $B\!\to\!C$ & $+0.070$ & $[+0.039,+0.105]$ & $0.0003$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Pairs directed into $B$ are identically zero with zero-width intervals, as
+the dependency chain requires; nothing downstream feeds back into beam
+selection.
+
+$P\!\to\!C$ is the primary effect: permitting the prediction fallback
+raises compression fallbacks from 0.473 to 0.723 per realization, a
+\SI{53}{\percent} increase attributable to $P$'s corrective action rather
+than to $C$'s own degradation. It is stable across recovery hysteresis
+($+0.172$ at $q_{\text{exit}}{=}10$, $+0.250$ at 25) and weakens sixfold at
+FR1, where prediction reaches \SI{-12.1}{\decibel} and its fallback
+therefore damages the encoder's input far less. That scaling is the
+mechanism test.
+
+$B\!\to\!P$ at FR1 is \emph{suppression}, not induction: pinning $B$ active
+increases $P$ fallbacks by 0.418. The exhaustive sweep hands the predictor
+a cleaner beam. Holding a fallback is therefore not uniformly protective.
+
+\subsection{Is the fallback the right action?}
+\label{sec:conditional}
+
+The preceding results concern when fallbacks fire and what they jointly
+cost. They do not establish that firing was correct. Table~\ref{tab:conditional}
+restricts the comparison to slots at which the monitor exceeded its
+threshold---the regime in which a fallback is supposed to pay for itself.
+Conditioning uses the statistic from the \emph{active} arm, the monitor
+state that would have driven the decision; conditioning on the fallback
+arm's statistic would select on an outcome the decision produced.
+
+\begin{table}[t]
+\caption{Throughput change from falling back [bit/s/Hz], positive means the
+fallback helps. 256 realizations.}
+\label{tab:conditional}
+\centering
+\begin{tabular}{llccc}
+\toprule
+ & & all slots & monitor fired & post-blockage \\
+\midrule
+\multirow{2}{*}{FR2}
+ & $P$ & $-0.059$ & $+0.222$ & $+0.249$ \\
+ & $C$ & $-0.072$ & $-0.269$ & $-0.258$ \\
+\midrule
+\multirow{2}{*}{FR1}
+ & $P$ & $+0.101$ & $+0.413$ & $+0.436$ \\
+ & $C$ & $-0.679$ & $-0.230$ & $-0.149$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The two pipelines separate cleanly and identically in both deployments. The
+prediction fallback \emph{helps} when its monitor fires, by
+\SI{0.222}{} at FR2 and \SI{0.413}{} at FR1, and helps most under deep
+blockage; its episode-averaged cost is an artifact of the
+\SI{93.5}{\percent} of slots on which the monitor correctly stayed quiet.
+The compression fallback is \emph{worse} than remaining active whenever its
+monitor fires, in every degradation phase, in both deployments. At
+\SI{12}{\bit}, the wideband report is less useful than a stale learned
+report even when the CSI is genuinely poor.
+
+The specification treats these as instances of the same primitive.
+
+\subsection{Arbitration, and why it does not help}
+\label{sec:arbiter}
+
+The arbiter withholds a downstream fallback request for at most $H$
+evaluations when an upstream pipeline changed state within the last $W_a$.
+The hold is bounded, and $B$ is never arbitrated, so fallback remains
+locally executable and the chain cannot deadlock. As a control we run a
+\emph{blind} variant that withholds every downstream request for $H$
+evaluations regardless of upstream state.
+
+\begin{table}[t]
+\caption{Arbitration benefit and cost, 256 realizations, $W_a{=}10$.
+``avoided'' counts induced fallbacks removed; ``denied'' counts legitimate
+ones, labelled by the upstream-pinned arm.}
+\label{tab:arbiter}
+\centering
+\begin{tabular}{llcccc}
+\toprule
+ & & $\Delta$ tput & avoided & denied & chain $-$ blind \\
+\midrule
+\multirow{2}{*}{FR2, $H{=}10$}
+ & chain & $+0.020$ & 0.117 & 0.125 & \multirow{2}{*}{$-0.072$} \\
+ & blind & $+0.092$ & 0.270 & 0.453 & \\
+\midrule
+\multirow{2}{*}{FR1, $H{=}40$}
+ & chain & $+0.036$ & 0.016 & 0.043 & \multirow{2}{*}{$-0.174$} \\
+ & blind & $+0.210$ & 0.039 & 0.945 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The arbiter improves throughput, and this should not be reported as
+success. The blind control improves it substantially more---by
+$0.072$ at FR2 and $0.174$ at FR1, intervals excluding zero
+($[-0.085,-0.061]$ and $[-0.203,-0.145]$)---while \emph{denying more
+legitimate fallbacks}. At $H{=}10$ the blind variant eliminates compression
+fallback entirely and still wins.
+
+When denying legitimate fallbacks improves throughput, the fallback is the
+problem. Table~\ref{tab:conditional} identifies it directly: $C$'s fallback
+is the wrong action whenever it is taken. Coordination cannot repair that,
+because the harm does not depend on whether the trigger was induced. The
+dependency-chain condition adds nothing beyond delay, and $H$ is not
+binding---mean holds are 1.5--3.2 evaluations and $H\in\{10,20,40\}$ give
+identical results, so the behaviour is governed by $W_a$ and the monitor
+dynamics.
+
+We report this as the outcome of a control we built to test our own
+proposal. The interaction and induced-fallback results stand; the inference
+from them to a need for cross-functionality arbitration does not.
